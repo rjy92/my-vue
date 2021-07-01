@@ -158,7 +158,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     shouldObserve &&
     !isServerRendering() &&
     (Array.isArray(value) || isPlainObject(value)) &&
-    Object.isExtensible(value) &&
+    Object.isExtensible(value) && // 判断一个对象是否是可扩展的
     !value._isVue
   ) {
     // 创建一个 Observer（观察者） 对象

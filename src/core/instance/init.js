@@ -14,7 +14,7 @@ let uid = 0
 
 export function initMixin (Vue: Class<Component>) {
   // 给 Vue 实例增加 _init() 方法
-  // 合并 options / 初始化操作
+  // 合并 options / 初始化操作，options是new Vue中的内容,相关示例代码为  02-options
   Vue.prototype._init = function (options?: Object) {
     
     // vue 实例
@@ -49,7 +49,15 @@ export function initMixin (Vue: Class<Component>) {
          * 至于每个子组件的选项合并则发生在两个地方：
          *   1、Vue.component 方法注册的全局组件在注册时做了选项合并
          *   2、{ components: { xx } } 方式注册的局部组件在执行编译器生成的 render 函数时做了选项合并，包括根组件中的 components 配置
-         */
+         *
+         *  调用mergeOptions方法实现options的合并， 该方法有三个参数， 
+         *  第一个是resolveConstructorOptions方法返回值(vm.constructor的options)， 
+         *  第二是new Vue时传入的值(自定义的options)，
+         *  第三个是vue对象本身。 
+         * mergeOptions就是通过一系列的合并策略， 将Vue的构造函数以及自定义的options进行合并
+         * 
+         * */
+        
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
