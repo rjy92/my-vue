@@ -273,6 +273,10 @@ export function defineReactive (
  * triggers change notification if the property doesn't
  * already exist.
  */
+/**
+ * 通过 Vue.set 或者 this.$set 方法给 target 的指定 key 设置值 val
+ * 如果 target 是对象，并且 key 原本不存在，则为新 key 设置响应式，然后执行依赖通知
+ */
 export function set (target: Array<any> | Object, key: any, val: any): any {
   if (process.env.NODE_ENV !== 'production' &&
     (isUndef(target) || isPrimitive(target))
@@ -280,6 +284,7 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
   // 判断 target 是否是对象，key 是否是合法的索引
+   // 更新数组指定下标的元素，Vue.set(array, idx, val)，通过 splice 方法实现响应式更新
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.length = Math.max(target.length, key)
     // 通过 splice 对key位置的元素进行替换
@@ -288,13 +293,17 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     return val
   }
   // 如果 key 在对象中已经存在直接赋值
+  //更新对象已有属性，Vue.set(obj, key, val)，执行更新即可
   if (key in target && !(key in Object.prototype)) {
     target[key] = val
     return val
   }
   // 获取 target 中的 observer 对象
+  // target 不是响应式对象，新属性会被设置，但是不会做响应式处理
   const ob = (target: any).__ob__
   // 如果 target 是 vue 实例或者 $data 直接返回
+  // 不能向 Vue 实例或者 $data 添加动态添加响应式属性，vmCount 的用处之一，
+  // this.$data 的 ob.vmCount = 1，表示根组件，其它子组件的 vm.vmCount 都是 0
   if (target._isVue || (ob && ob.vmCount)) {
     process.env.NODE_ENV !== 'production' && warn(
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
@@ -308,6 +317,7 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     return val
   }
   // 把 key 设置为响应式属性
+  // 给对象定义新属性，通过 defineReactive 方法设置响应式，并触发依赖更新
   defineReactive(ob.value, key, val)
   // 发送通知
   ob.dep.notify()
@@ -316,6 +326,10 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
 
 /**
  * Delete a property and trigger change if necessary.
+ */
+/**
+ * 通过 Vue.delete 或者 vm.$delete 删除 target 对象的指定 key
+ * 数组通过 splice 方法实现，对象则通过 delete 运算符删除指定 key，并执行依赖通知
  */
 export function del (target: Array<any> | Object, key: any) {
   if (process.env.NODE_ENV !== 'production' &&

@@ -18,9 +18,19 @@ import {
   defineReactive
 } from '../util/index'
 
+/**
+ * 初始化 Vue 的众多全局 API，比如：
+ *   默认配置：Vue.config
+ *   工具方法：Vue.util.xx
+ *   Vue.set、Vue.delete、Vue.nextTick、Vue.observable
+ *   Vue.options.components、Vue.options.directives、Vue.options.filters、Vue.options._base
+ *   Vue.use、Vue.extend、Vue.mixin、Vue.component、Vue.directive、Vue.filter
+ *   
+ */
 export function initGlobalAPI (Vue: GlobalAPI) {
   // config
   const configDef = {}
+  // Vue 的众多默认配置项
   configDef.get = () => config
   if (process.env.NODE_ENV !== 'production') {
     configDef.set = () => {
@@ -37,10 +47,10 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   // them unless you are aware of the risk.
   // 这些工具方法不视作全局API的一部分，除非你已经意识到某些风险，否则不要去依赖他们
   Vue.util = {
-    warn,
-    extend,
-    mergeOptions,
-    defineReactive
+    warn, // 警告日志
+    extend, // 类似选项合并
+    mergeOptions, // 合并选项
+    defineReactive // 设置响应式
   }
   // 静态方法 set/delete/nextTick
   Vue.set = set
@@ -65,6 +75,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   Vue.options._base = Vue
 
   // 设置 keep-alive 组件
+  // 在 Vue.options.components 中添加内置组件，比如 keep-alive
   extend(Vue.options.components, builtInComponents)
 
   // 注册 Vue.use() 用来注册插件
